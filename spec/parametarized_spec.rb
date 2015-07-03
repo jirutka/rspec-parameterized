@@ -32,9 +32,26 @@ describe RSpec::Parameterized do
       end
     end
 
+  end
+
+  describe "#with_them description" do
+    where(:a, :b, :answer) do
+      [
+        [1 , 2 , 3],
+        [5 , 8 , 13],
+        [0 , 0 , 0]
+      ]
+    end
+
+    subject(:group_description) {|example| example.example_group.description }
     with_them "accepts a fixed description" do
-      subject(:group_description) {|example| example.example_group.description }
       it { should eq "accepts a fixed description" }
+    end
+
+    with_them ->(**a) { "#{a[:a]} and #{a[:b]}" } do
+      it "calls lambda with exposed params" do
+        expect(group_description).to eq "#{a} and #{b}"
+      end
     end
   end
 

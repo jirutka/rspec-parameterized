@@ -155,7 +155,9 @@ module RSpec
       end
 
       def case_description(description, params)
-        if description
+        if description.is_a?(Proc)
+          description.call(Hash[params])
+        elsif description
           description
         else
           params.map {|t| "#{t[0]}: #{params_inspect(t[1])}"}.join(", ")
