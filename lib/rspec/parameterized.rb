@@ -66,12 +66,12 @@ module RSpec
       #       end
       #     end
       #
-      def with_them(*args, &b)
+      def with_them(description = nil, *args, &b)
         if @parameter.nil?
           @parameterized_pending_cases ||= []
           @parameterized_pending_cases << [args, b]
         else
-          define_cases(@parameter, *args, &b)
+          define_cases(@parameter, description, *args, &b)
         end
       end
 
@@ -81,7 +81,7 @@ module RSpec
 
         if @parameterized_pending_cases
           @parameterized_pending_cases.each { |e|
-            define_cases(@parameter, *e[0], &e[1])
+            define_cases(@parameter, nil, *e[0], &e[1])
           }
         end
       end
@@ -126,7 +126,7 @@ module RSpec
         instance.instance_eval(source_fragment)
       end
 
-      def define_cases(parameter, *args, &block)
+      def define_cases(parameter, description = nil, *args, &block)
         instance = new  # for evaluate let methods.
         if defined?(self.superclass::LetDefinitions)
           instance.extend self.superclass::LetDefinitions
@@ -144,14 +144,21 @@ module RSpec
 
         param_sets.each do |params|
           pairs = [parameter.arg_names, params].transpose
-          pretty_params = pairs.map {|t| "#{t[0]}: #{params_inspect(t[1])}"}.join(", ")
-          describe(pretty_params, *args) do
+          describe(case_description(description, pairs), *args) do
             pairs.each do |n|
               let(n[0]) { n[1] }
             end
 
             module_eval(&block)
           end
+        end
+      end
+
+      def case_description(description, params)
+        if description
+          description
+        else
+          params.map {|t| "#{t[0]}: #{params_inspect(t[1])}"}.join(", ")
         end
       end
 

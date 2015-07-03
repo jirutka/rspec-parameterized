@@ -31,6 +31,11 @@ describe RSpec::Parameterized do
         expect(a + b).to eq answer
       end
     end
+
+    with_them "accepts a fixed description" do
+      subject(:group_description) {|example| example.example_group.description }
+      it { should eq "accepts a fixed description" }
+    end
   end
 
   describe "lambda parameter" do
