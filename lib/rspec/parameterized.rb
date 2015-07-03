@@ -152,6 +152,13 @@ module RSpec
               let(name) { value }
             end
 
+            instance_eval do
+              @row = struct
+              def row
+                @row
+              end
+            end
+
             module_eval(&block)
           end
         end
