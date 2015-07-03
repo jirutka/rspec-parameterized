@@ -48,9 +48,9 @@ describe RSpec::Parameterized do
       it { should eq "accepts a fixed description" }
     end
 
-    with_them ->(**a) { "#{a[:a]} and #{a[:b]}" } do
+    with_them -> { "#{a} + #{b} = #{answer}" } do
       it "calls lambda with exposed params" do
-        expect(group_description).to eq "#{a} and #{b}"
+        expect(group_description).to eq "#{a} + #{b} = #{answer}"
       end
     end
   end

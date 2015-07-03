@@ -2,6 +2,7 @@ require "rspec/parameterized/version"
 require 'parser'
 require 'unparser'
 require 'proc_to_ast'
+require 'ostruct'
 
 module RSpec
   module Parameterized
@@ -156,7 +157,8 @@ module RSpec
 
       def case_description(description, params)
         if description.is_a?(Proc)
-          description.call(Hash[params])
+          params_struct = OpenStruct.new(Hash[params])
+          params_struct.instance_exec(&description)
         elsif description
           description
         else
