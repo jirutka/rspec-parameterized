@@ -28,7 +28,7 @@ describe RSpec::Parameterized do
 
     with_them pending: "PENDING" do
       it "should do additions" do
-        expect(a + b).to == answer
+        expect(a + b).to eq answer
       end
     end
   end
