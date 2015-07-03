@@ -2,7 +2,6 @@ require "rspec/parameterized/version"
 require 'parser'
 require 'unparser'
 require 'proc_to_ast'
-require 'ostruct'
 
 module RSpec
   module Parameterized
@@ -140,14 +139,17 @@ module RSpec
           param_sets = extracted.is_a?(Array) ? extracted : extracted.to_params
         end
 
+        param_struct = Struct.new(*parameter.arg_names)
+
         # for only one parameters
         param_sets = param_sets.map { |x| Array[x] } if !param_sets[0].is_a?(Array)
 
         param_sets.each do |params|
-          pairs = [parameter.arg_names, params].transpose
-          describe(case_description(description, pairs), *args) do
-            pairs.each do |n|
-              let(n[0]) { n[1] }
+          struct = param_struct.new(*params)
+
+          describe(case_description(description, struct), *args) do
+            struct.each_pair do |name, value|
+              let(name) { value }
             end
 
             module_eval(&block)
@@ -157,12 +159,11 @@ module RSpec
 
       def case_description(description, params)
         if description.is_a?(Proc)
-          params_struct = OpenStruct.new(Hash[params])
-          params_struct.instance_exec(&description)
+          params.instance_exec(&description)
         elsif description
           description
         else
-          params.map {|t| "#{t[0]}: #{params_inspect(t[1])}"}.join(", ")
+          params.to_h.map {|t| "#{t[0]}: #{params_inspect(t[1])}"}.join(", ")
         end
       end
 
